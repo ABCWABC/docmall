@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycomy.mapper.BoardMapper">
+	
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item="type" collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'C'.toString()">
+							content like '%' || #{keyword} || '%'
+						</when>
+						<when test="type == 'W'.toString()">
+							writer like '%' || #{keyword} || '%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim> 
+	</sql>
+	
+	<!-- 기본게시판 작업(댓글기능, 파일첨부기능 제외 )에서 시퀀스를 insert문에서 직접사용-->
+	<insert id="insert" parameterType="com.mycomy.domain.BoardVO">
+		insert into board_tbl(brd_num, mbsp_id, brd_title, brd_content)
+		values(seq_board.nextval, #{mbsp_id}, #{brd_title}, #{brd_content})
+	</insert>
+	
+	<insert id="insertSelectKey" parameterType="com.mycomy.domain.BoardVO">
+	
+		<selectKey keyProperty="brd_num" order="BEFORE" resultType="long">
+			select seq_board.nextval from dual
+		</selectKey>
+		
+		insert into board_tbl(brd_num, mbsp_id, brd_title, brd_content)
+		values(#{brd_num}, #{mbsp_id}, #{brd_title}, #{brd_content})
+	
+	</insert>
+	
+	<select id="getList" resultType="com.mycomy.domain.BoardVO">
+		select brd_num, mbsp_id, brd_title, brd_content, brd_regdate, brd_readcount from board_tbl
+	</select>
+	 
+	<select id="getListWithPaging" parameterType="com.mycomy.domain.Criteria" resultType="com.mycomy.domain.BoardVO">
+		<![CDATA[ 
+		select brd_num, mbsp_id, brd_title, brd_content, brd_regdate, replycnt
+		from (
+		    select /*+ index_desc(tbl_board pk_board) */ rownum rn, brd_num, mbsp_id, brd_title, brd_content, brd_regdate, replycnt
+		    from board_tbl
+		    where 
+		]]>    
+		
+		<include refid="criteria"></include>
+
+		<![CDATA[     
+		    rownum <= (#{pageNum} * #{amount}) 
+		)
+		where rn > ((#{pageNum} - 1) * #{amount} )
+		]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		select count(*) from board_tbl where
+		
+		<include refid="criteria"></include> 
+		
+		brd_num > 0
+		
+	</select>
+	
+	<select id="get" parameterType="Long" resultType="com.mycomy.domain.BoardVO">
+		select brd_num, mbsp_id, brd_title, brd_content, brd_regdate, brd_readcount from board_tbl where brd_num = #{brd_num}
+	</select>
+	
+	<update id="update">
+		update board_tbl
+		set brd_title = #{brd_title}, brd_content = #{brd_content}
+		where brd_num = #{brd_num}
+	</update>
+	
+	<delete id="delete">
+		delete from board_tbl where brd_num = #{brd_num}
+	</delete>
+	
+	<update id="updateReplyCnt">
+		update board_tbl set replycnt = replycnt + #{amount} where brd_num = #{brd_num}
+	</update>
+</mapper>  

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycomy.mapper.ReplyMapper">
+
+	<insert id="insert">
+		insert into reply_tbl(rly_num, brd_num, reply, replyer) values(SEQ_REPLY.nextval,#{brd_num}, #{reply}, #{replyer} )
+	</insert>
+	
+	<select id="read" resultType="com.mycomy.domain.ReplyVO">
+		select * from reply_tbl where rly_num = #{rly_num}
+	</select>
+	
+	<update id="update">
+		update reply_tbl set reply = #{reply}
+		where rly_num = #{rly_num}
+	</update>
+	
+	<delete id="delete">
+		delete from reply_tbl where rly_num = #{rly_num}
+	</delete>
+	
+	<delete id="deleteAll">
+		delete from reply_tbl where brd_num = #{brd_num}
+	</delete>
+	
+	<select id="getListWithPaging" resultType="com.mycomy.domain.ReplyVO">
+		<![CDATA[
+		select rly_num, brd_num, reply, replyer, replydate
+		from (
+		    select /*+ index_desc(tbl_reply PK_REPLY) */ rownum rn, rly_num, brd_num, reply, replyer, replydate, updatedate
+		    from reply_tbl
+		    where brd_num = #{brd_num}
+		    and rownum <= (#{cri.pageNum} * #{cri.amount})
+		)
+		where rn > ((#{cri.pageNum} - 1) * #{cri.amount} )
+		]]>
+	</select>
+	
+	<select id="getCountByBno" resultType="int">
+		select count(rly_num) from reply_tbl where brd_num = #{brd_num}
+	</select>
+
+</mapper>  

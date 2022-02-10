@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mycomy.mapper.MemberMapper">
+	
+	<insert id="join" parameterType="com.mycomy.domain.MemberVO"> <!-- 2022-02-09 -->
+	
+		INSERT INTO mbsp_tbl(
+			mbsp_id,
+			mbsp_password,
+			mbsp_name,
+			mbsp_email,
+			mbsp_zipcode,
+			mbsp_addr,
+			mbsp_deaddr,
+			mbsp_phone,
+			mbsp_receive
+			)
+		VALUES(
+			#{mbsp_id},
+			#{mbsp_password},
+			#{mbsp_name},
+			#{mbsp_email},
+			#{mbsp_zipcode},
+			#{mbsp_addr},
+			#{mbsp_deaddr},
+			#{mbsp_phone},
+			#{mbsp_receive}
+			)
+		
+	</insert>
+
+	<select id="checkId" resultType="String"> <!-- 2022-02-09 -->
+	
+		SELECT
+			mbsp_id
+		FROM
+			mbsp_tbl
+		WHERE
+			mbsp_id = #{mbsp_id}
+			
+	</select>
+	
+	<select id="login" resultType="com.mycomy.domain.MemberVO"> <!-- 2022-02-10 -->
+		SELECT
+			mbsp_id, mbsp_password, mbsp_name, mbsp_email, mbsp_zipcode, mbsp_addr, mbsp_deaddr, mbsp_phone, mbsp_receive, mbsp_point, mbsp_datesub, mbsp_updatedate, mbsp_lastlogin
+		FROM
+			mbsp_tbl
+		WHERE
+			mbsp_id = #{mbsp_id}
+	</select>
+	
+	<update id="modify">  <!-- 2022-02-10 -->
+		UPDATE
+			mbsp_tbl 
+		SET
+			mbsp_email = #{mbsp_email}, 
+			mbsp_zipcode = #{mbsp_zipcode}, 
+			mbsp_addr = #{mbsp_addr}, 
+			mbsp_deaddr = #{mbsp_deaddr}, 
+			mbsp_phone = #{mbsp_phone}, 
+			mbsp_receive = #{mbsp_receive}, 
+			mbsp_updatedate = sysdate
+		WHERE
+			mbsp_id = #{mbsp_id}
+	</update>
+	
+	<select id="member_info" resultType="com.mycomy.domain.MemberVO">
+		select mbsp_id, mbsp_password, mbsp_name, mbsp_email, mbsp_zipcode, mbsp_addr, mbsp_deaddr, mbsp_phone, mbsp_receive, mbsp_point, mbsp_datesub, mbsp_updatedate, mbsp_lastlogin
+		from MBSP_TBL
+		where mbsp_id = #{mbsp_id}
+	</select>
+		
+	
+	<update id="update_pw">
+		update MBSP_TBL 
+			set mbsp_password = #{mbsp_password}
+		where mbsp_id = #{mbsp_id}
+	</update>
+	
+	
+	<select id="find_id" resultType="String">
+		select mbsp_id 
+		from MBSP_TBL 
+		where mbsp_name = #{mbsp_name}
+	</select>
+	
+	<select id="find_pwd" resultType="com.mycomy.domain.MemberVO">
+		select mbsp_id, mbsp_password, mbsp_name, mbsp_email, mbsp_zipcode, mbsp_addr, mbsp_deaddr, mbsp_phone, mbsp_receive, mbsp_point, mbsp_datesub, mbsp_updatedate, mbsp_lastlogin
+		from MBSP_TBL 
+		where mbsp_id = #{mbsp_id} and mbsp_name = #{mbsp_name}
+	</select>
+	
+	<delete id="deleteUser">
+		delete from MBSP_TBL
+		where mbsp_id = #{mbsp_id}
+	</delete>
+	
+	<!-- VO클래스 필드와 테이블 컬럼명이 다른 경우 -->
+	<resultMap type="com.mycomy.domain.UserInfoVO" id="userinfo">
+		
+		<!-- mb_id_pk, mb_name, mb_passwd, mb_email, mb_zipcode, mb_addr, mb_addr_d, mb_phone, mb_nick, mb_accept_e, mb_point, mb_date_sub, mb_date_upd, mb_date_last -->
+		<id property="user_id_pk" column="mbsp_id" />
+		<result property="user_id_pk" column="mbsp_id" />
+		<result property="user_passwd" column="mbsp_password" />
+		<result property="user_name" column="mbsp_name" />
+		<result property="user_email" column="mbsp_email" />
+		<result property="user_zipcode" column="mbsp_zipcode" />
+		<result property="user_addr" column="mbsp_addr" />
+		<result property="user_addr_d" column="mbsp_deaddr" />
+		<result property="user_phone" column="mbsp_phone" />
+		<result property="user_receive" column="mbsp_receive" />
+		<result property="user_point" column="mbsp_point" />
+		<result property="user_date_sub" column="mbsp_datesub" />
+		<result property="user_date_upd" column="mbsp_updatedate" />
+		<result property="user_date_last" column="mbsp_lastlogin" />
+		
+	</resultMap>
+	
+	<select id="userinfo_list" resultMap="userinfo">
+		select mbsp_id, mbsp_password, mbsp_name, mbsp_email, mbsp_zipcode, mbsp_addr, mbsp_deaddr, mbsp_phone, mbsp_receive, mbsp_point, mbsp_datesub, mbsp_updatedate, mbsp_lastlogin
+		from MBSP_TBL
+	</select>
+
+</mapper>
